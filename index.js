@@ -31,6 +31,8 @@ http.createServer((req, response) => {
     config.body = req;
   }
 
+  response.setHeader('Access-Control-Allow-Origin', '*');
+  
   request(config)
     .on('error', () => response.end())
     .pipe(response, {end:true});
