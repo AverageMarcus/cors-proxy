@@ -24,17 +24,28 @@ http.createServer((req, response) => {
     url: remoteURL,
     followAllRedirects: true,
     method: req.method,
-    headers: req.headers
+    headers: req.headers,
+    gzip: true
   };
 
   if(req.method !== 'HEAD') {
     config.body = req;
   }
 
-  response.setHeader('Access-Control-Allow-Origin', '*');
-  
   request(config)
+    .on('response', res => {
+      res.headers['access-control-allow-origin'] = req.headers.origin || '*';
+      res.headers['access-control-allow-headers'] = 'Origin, X-Requested-With, Content-Type, Accept, authorization';
+      delete res.headers['access-control-allow-credentials'];
+      delete res.headers['access-control-allow-methods'];
+      delete res.headers['content-encoding'];
+      delete res.headers['content-length'];
+      response.writeHead(res.statusCode, res.headers);
+    })
+    .on('data', function(data) {
+      response.write(data);
+    })
     .on('error', () => response.end())
-    .pipe(response, {end:true});
+    .on('end', () => response.end());
 
 }).listen(PORT);
