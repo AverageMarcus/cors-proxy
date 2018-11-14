@@ -14,6 +14,14 @@ http.createServer((req, response) => {
   let remoteURL = url.parse(req.url.substring(1));
   if(!remoteURL.hostname || remoteURL.hostname === 'localhost') return response.end();
 
+  if(req.method === 'OPTIONS') {
+    response.writeHead(200, {
+      'access-control-allow-origin': req.headers.origin || '*',
+      'access-control-allow-headers': 'Origin, X-Requested-With, Content-Type, Accept, authorization'
+    });
+    return response.end();
+  }
+
   for(let key in req.headers) {
     if(key.match(/host|cookie/ig)){
       delete req.headers[key];
