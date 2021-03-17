@@ -48,6 +48,7 @@ http.createServer((req, response) => {
       delete res.headers['access-control-allow-methods'];
       delete res.headers['content-encoding'];
       delete res.headers['content-length'];
+      delete res.headers['x-frame-options'];
       response.writeHead(res.statusCode, res.headers);
     })
     .on('data', function(data) {
