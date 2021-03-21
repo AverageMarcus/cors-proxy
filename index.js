@@ -2,6 +2,7 @@
 const request = require('request');
 const http = require('http');
 const url = require('url');
+const fs = require('fs').promises;
 let PORT = process.env.PORT || 8000;
 
 process.argv.forEach(function (arg) {
@@ -11,6 +12,10 @@ process.argv.forEach(function (arg) {
 });
 
 http.createServer((req, response) => {
+  if (!req.url.substring(1)) {
+    return loadWebpage(req, response);
+  }
+
   let remoteURL = url.parse(req.url.substring(1));
   if(!remoteURL.hostname || remoteURL.hostname === 'localhost') return response.end();
 
@@ -58,3 +63,17 @@ http.createServer((req, response) => {
     .on('end', () => response.end());
 
 }).listen(PORT);
+
+function loadWebpage(req, res) {
+  fs.readFile(__dirname + "/index.html")
+    .then(contents => {
+        res.setHeader("Content-Type", "text/html");
+        res.writeHead(200);
+        res.end(contents);
+    })
+    .catch(err => {
+        res.writeHead(500);
+        res.end(err);
+        return;
+    });
+}
